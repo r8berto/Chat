@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Chat Client</title>
+	<title>Room Client</title>
 </head>
 <body>
 	<h1></h1>
@@ -9,26 +9,32 @@
 	<a id='sendBut' href=''>Send</a>
 </body>
 
-<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+<script src="http://localhost:2335/socket.io/socket.io.js"></script>
 <script src="jquery.js"></script>
 <script>
-  var socket = io.connect('http://localhost:8080');
-  socket.on('login', function (data) {
-    console.log(data);
-    $('h1').text(data.hello);
-    socket.emit('loged', { my: 'data' });
-  });
-  $('a#sendBut').on('click',function(e){
-  	e.preventDefault();
-  	console.log('Enviamos');
-  	$('div#messages').append('<p>Tu: ' + $('input').val() + '</p>');
-  	socket.emit('message', { msg: $('input').val() });
-  });
-  socket.on('msgBroadcast', function (data) {
-  	console.log(data);
-  	//$('h1').text(data.msg);
-  	$('div#messages').append('<p>' + data.msg + '</p>');
-  });
+	var user = 'Roberto';
+	var joined = false;
+	var socket = io.connect('http://localhost:2335');
+
+	//Joining Room
+	socket.emit('join room', { room: 'room1', user: user });
+	socket.on('joined', function (data){
+		$('h1').text(data);
+	});
+	//Someone has conected
+	socket.on('message', function (data){
+		$('div#messages').append('<p>' + data + '</p>');
+	});
+	//Receiving Messages
+	socket.on('messageBroadcast', function (data) {
+		$('div#messages').append('<p>' + data.user + ': ' + data.msg + '</p>');
+	});
+	//Sending Messages
+	$('a#sendBut').on('click',function(e){
+		e.preventDefault();
+		$('div#messages').append('<p>Tu: ' + $('input').val() + '</p>');
+		socket.emit('msg', { msg: $('input').val() });
+	});
 </script>
 
 </html>

@@ -2,7 +2,7 @@ var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app)
   , fs = require('fs')
 
-app.listen(8080);
+app.listen(2335);
 io.set('origin','*');
 
 function handler (req, res) {
@@ -14,21 +14,30 @@ function handler (req, res) {
     }
 
     res.writeHead(200, {
-		'Content-Type': 'text/plain',
-		'Access-Control-Allow-Origin' : '*'
-	});
+    'Content-Type': 'text/plain',
+    'Access-Control-Allow-Origin' : '*'
+  });
     res.end(data);
   });
 }
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('login', { hello: 'Hi client' });
-  socket.on('loged', function (data) {
-    console.log(data);
+  socket.on('join room', function(data) {
+    socket.join(data.room);
+    joinedRoom = data.room;
+    user = data.user;
+    socket.emit('joined', user + ', welcome to ' + joinedRoom);
+    socket.broadcast.to(joinedRoom)
+                       .send(user + ' joined room');
   });
-  socket.on('message', function (data) {
-    console.log(data);
-    socket.broadcast.emit('msgBroadcast', data );
+  socket.on('msg', function (data) {
+      if (joinedRoom) {
+        socket.broadcast.to(joinedRoom).emit('messageBroadcast', {user: user, msg: data.msg} );
+      } else {
+        socket.send(
+           "you're not joined a room." +
+           "select a room and then push join."
+        );
+      }
   });
 });
-
