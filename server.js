@@ -24,19 +24,18 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
   socket.on('join room', function(data) {
     socket.join(data.room);
-    joinedRoom = data.room;
-    user = data.user;
-    socket.emit('joined', user + ', welcome to ' + joinedRoom);
-    socket.broadcast.to(joinedRoom)
-                       .send(user + ' joined room');
+    socket.joinedRoom = data.room;
+    socket.user = data.user;
+    socket.emit('joined', socket.user + ', welcome to ' + socket.joinedRoom);
+    socket.broadcast.to(socket.joinedRoom)
+                       .send(socket.user + ' joined room');
   });
   socket.on('msg', function (data) {
-      if (joinedRoom) {
-        socket.broadcast.to(joinedRoom).emit('messageBroadcast', {user: user, msg: data.msg} );
+      if (socket.joinedRoom) {
+        socket.broadcast.to(socket.joinedRoom).emit('messageBroadcast', {user: socket.user, msg: data.msg} );
       } else {
         socket.send(
-           "you're not joined a room." +
-           "select a room and then push join."
+           "you're not conected"
         );
       }
   });
