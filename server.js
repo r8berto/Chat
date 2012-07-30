@@ -12,7 +12,6 @@ function handler (req, res) {
       res.writeHead(500);
       return res.end('Error loading index.html');
     }
-
     res.writeHead(200, {
     'Content-Type': 'text/plain',
     'Access-Control-Allow-Origin' : '*'
@@ -26,7 +25,7 @@ io.sockets.on('connection', function (socket) {
     socket.join(data.room);
     socket.joinedRoom = data.room;
     socket.user = data.user;
-    socket.emit('joined', socket.user + ', welcome to ' + socket.joinedRoom);
+    socket.emit('joined', socket.user + ' in ' + socket.joinedRoom);
     socket.broadcast.to(socket.joinedRoom)
                        .send(socket.user + ' joined room');
   });

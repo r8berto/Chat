@@ -2,10 +2,12 @@
 <html>
 <head>
 	<title>Wambabuluba's Chat Client</title>
+	<link rel="stylesheet" type="text/css" href="client.css" />
 	<meta charset="UTF-8">
 </head>
 <body>
 	<div id='login'>
+		<h1>Wambabuluba's Chat</h1>
 		<form>
 			<input type='text' name='username' placeholder='User Name' required/>
 			<input type='text' name='roomname' placeholder='Room Name' required/>
@@ -15,8 +17,10 @@
 	<div id='room'>
 		<h1></h1>
 		<div id='messages'></div>
-		<input type='text' name='msg'/>
-		<a id='sendBut' href=''>Send</a>
+		<form autocomplete="off">
+			<input type='text' name='msg'/>
+			<button id='sendBut' type='submit'>Send</button>
+		</form>
 	</div>
 </body>
 
@@ -39,17 +43,19 @@
 		});
 		//Someone has conected
 		socket.on('message', function (data){
-			$('div#messages').append('<p>' + data + '</p>');
+			$('div#messages').append('<p><i>' + data + '</i></p>');
 		});
 		//Receiving Messages
 		socket.on('messageBroadcast', function (data) {
-			$('div#messages').append('<p>' + data.user + ': ' + data.msg + '</p>');
+			$('div#messages').append('<p><b>' + data.user + ':</b> ' + data.msg + '</p>');
 		});
 		//Sending Messages
-		$('a#sendBut').on('click',function(e){
+		$('button#sendBut').on('click',function(e){
 			e.preventDefault();
-			$('div#messages').append('<p>Tu: ' + $('input[name="msg"]').val() + '</p>');
-			socket.emit('msg', { msg: $('input[name="msg"]').val() });
+			$inputMsg = $('input[name="msg"]');
+			$('div#messages').append('<p><b>Tu:</b> ' + $inputMsg .val() + '</p>');
+			socket.emit('msg', { msg: $inputMsg .val() });
+			$inputMsg.val('');
 		});
 	}
 
